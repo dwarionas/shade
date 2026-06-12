@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExamShade</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Title Bar -->
+    <div class="titlebar">
+      <span class="titlebar__title">ExamShade</span>
+      <div class="titlebar__controls">
+        <button class="btn btn--icon tooltip" data-tooltip="Імпорт" id="btn-import" title="Імпорт файлу">📄</button>
+        <button class="btn btn--icon tooltip" data-tooltip="Профілі" id="btn-profiles" title="Керування профілями">📚</button>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar__search">
+        <span class="toolbar__search-icon">🔍</span>
+        <input
+          type="text"
+          class="toolbar__search-input"
+          id="search-input"
+          placeholder="Пошук по білетах..."
+          autocomplete="off"
+        />
+      </div>
+      <select class="toolbar__profile" id="profile-select" title="Вибір профілю">
+        <!-- Profiles will be populated by JS -->
+      </select>
+      <div class="toolbar__opacity">
+        <span class="toolbar__opacity-icon" title="Прозорість">◐</span>
+        <input
+          type="range"
+          class="toolbar__opacity-slider"
+          id="opacity-slider"
+          min="20"
+          max="100"
+          value="100"
+          title="Прозорість вікна"
+        />
+      </div>
+    </div>
+
+    <!-- Search Results Overlay -->
+    <div class="search-results" id="search-results"></div>
+
+    <!-- Main Content -->
+    <div class="main">
+      <!-- Sidebar -->
+      <div class="sidebar" id="sidebar">
+        <div class="sidebar__group-toggle sidebar__group-toggle--a" id="group-toggle" title="Натисніть Tab для перемикання групи">
+          A
+        </div>
+        <div class="sidebar__tickets" id="ticket-list">
+          <!-- Tickets will be populated by JS -->
+        </div>
+        <div class="sidebar__add-ticket" id="add-ticket" title="Додати білет">+</div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor">
+        <div class="editor__header">
+          <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+            <span class="editor__ticket-number" id="ticket-title">Білет 1</span>
+            <input type="text" class="editor__ticket-title-input" id="ticket-title-input" placeholder="Тема білету (необов'язково)" />
+          </div>
+          <div class="editor__actions">
+            <button class="btn btn--icon btn--danger tooltip" data-tooltip="Видалити білет" id="btn-delete-ticket" title="Видалити білет">🗑</button>
+          </div>
+        </div>
+        <textarea
+          class="editor__textarea"
+          id="editor-textarea"
+          placeholder="Введіть текст відповіді..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <div class="statusbar__left">
+        <span class="statusbar__item" id="status-ticket">Білет 1</span>
+        <span class="statusbar__item" id="status-group">Група A</span>
+      </div>
+      <div class="statusbar__right">
+        <span class="statusbar__item" id="status-saved">✓ Збережено</span>
+        <span class="statusbar__item">⌘⇧H — сховати</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Manager Modal -->
+  <div class="modal-overlay" id="modal-profiles">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title">Профілі екзаменів</span>
+        <button class="btn btn--icon" id="modal-profiles-close">✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="modal__profiles-list" id="profiles-list">
+          <!-- Profiles will be populated by JS -->
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input
+            type="text"
+            class="modal__input"
+            id="new-profile-name"
+            placeholder="Назва нового профілю..."
+          />
+          <button class="modal__btn modal__btn--confirm" id="btn-create-profile">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import Preview Modal -->
+  <div class="modal-overlay" id="modal-import">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title">Імпорт білетів</span>
+        <button class="btn btn--icon" id="modal-import-close">✕</button>
+      </div>
+      <div class="modal__body">
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+          Білети розділяються подвійним переносом рядка.
+        </p>
+        <div class="import-preview" id="import-preview" style="display: none;">
+          <div class="import-preview__title" id="import-count"></div>
+          <div id="import-items"></div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="modal__btn modal__btn--cancel" id="btn-import-cancel">Скасувати</button>
+        <button class="modal__btn modal__btn--confirm" id="btn-import-confirm" disabled>Імпортувати</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="modal-delete">
+    <div class="modal">
+      <div class="modal__header">
+        <span class="modal__title">Видалити білет?</span>
+        <button class="btn btn--icon" id="modal-delete-close">✕</button>
+      </div>
+      <div class="modal__body">
+        <p style="font-size: 12px; color: var(--text-secondary);" id="delete-message">
+          Ви впевнені, що хочете видалити цей білет?
+        </p>
+      </div>
+      <div class="modal__footer">
+        <button class="modal__btn modal__btn--cancel" id="btn-delete-cancel">Скасувати</button>
+        <button class="modal__btn modal__btn--danger" id="btn-delete-confirm">Видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="store.js"></script>
+  <script src="search.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
